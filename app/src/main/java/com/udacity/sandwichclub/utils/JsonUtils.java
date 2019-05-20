@@ -1,5 +1,7 @@
 package com.udacity.sandwichclub.utils;
 
+import android.support.annotation.Nullable;
+
 import com.udacity.sandwichclub.model.Sandwich;
 
 import org.json.JSONArray;
@@ -20,33 +22,30 @@ public class JsonUtils {
     private static final String SANDWICH_IMAGE = "image";
 
     /**
-     * Parses JSON string returned from API into a Sandwich object
+     * Parses JSON string into a Sandwich object
      *
      * @param json JSON String with Sandwich detail
      * @return Sandwich object
+     * @throws JSONException String json not valid
      */
-    public static Sandwich parseSandwichJson(String json) {
+    public static Sandwich parseSandwichJson(@Nullable String json) throws JSONException {
 
         if (json != null && !json.isEmpty()) {
 
-            try {
-                JSONObject sandwichJson = new JSONObject(json);
-                JSONObject sandwichName = sandwichJson.getJSONObject(SANDWICH_NAME);
-                JSONArray alsoKnownAsJArray = sandwichName.getJSONArray(SANDWICH_ALSO_KNOWN_AS);
-                JSONArray ingredientsJArray = sandwichJson.getJSONArray(SANDWICH_INGREDIENTS);
+            JSONObject sandwichJson = new JSONObject(json);
+            JSONObject sandwichName = sandwichJson.getJSONObject(SANDWICH_NAME);
+            JSONArray alsoKnownAsJArray = sandwichName.getJSONArray(SANDWICH_ALSO_KNOWN_AS);
+            JSONArray ingredientsJArray = sandwichJson.getJSONArray(SANDWICH_INGREDIENTS);
 
-                String mainName = sandwichName.getString(SANDWICH_MAIN_NAME);
-                List<String> alsoKnownAs = jsArrayToList(alsoKnownAsJArray);
-                String placeOfOrigin = sandwichJson.getString(SANDWICH_PLACE_OF_ORIGIN);
-                String description = sandwichJson.getString(SANDWICH_DESCRIPTION);
-                String image = sandwichJson.getString(SANDWICH_IMAGE);
-                List<String> ingredients = jsArrayToList(ingredientsJArray);
+            String mainName = sandwichName.getString(SANDWICH_MAIN_NAME);
+            List<String> alsoKnownAs = jsArrayToList(alsoKnownAsJArray);
+            String placeOfOrigin = sandwichJson.getString(SANDWICH_PLACE_OF_ORIGIN);
+            String description = sandwichJson.getString(SANDWICH_DESCRIPTION);
+            String image = sandwichJson.getString(SANDWICH_IMAGE);
+            List<String> ingredients = jsArrayToList(ingredientsJArray);
 
-                return new Sandwich(mainName, alsoKnownAs, placeOfOrigin, description, image, ingredients);
-
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+            return new
+                    Sandwich(mainName, alsoKnownAs, placeOfOrigin, description, image, ingredients);
         }
         return null;
     }
@@ -58,7 +57,7 @@ public class JsonUtils {
      * @return List converted from JSONArray
      * @throws JSONException if JSON cannot be parsed
      */
-    private static List<String> jsArrayToList(JSONArray jsArray) throws JSONException {
+    private static List<String> jsArrayToList(@Nullable JSONArray jsArray) throws JSONException {
         List<String> listFromJsArray = new ArrayList<>();
         if (jsArray != null) {
             for (int i = 0; i < jsArray.length(); i++) {

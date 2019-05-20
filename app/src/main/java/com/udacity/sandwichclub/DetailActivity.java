@@ -2,13 +2,18 @@ package com.udacity.sandwichclub;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 import com.udacity.sandwichclub.model.Sandwich;
 import com.udacity.sandwichclub.utils.JsonUtils;
+
+import org.json.JSONException;
 
 public class DetailActivity extends AppCompatActivity {
 
@@ -36,19 +41,24 @@ public class DetailActivity extends AppCompatActivity {
 
         String[] sandwiches = getResources().getStringArray(R.array.sandwich_details);
         String json = sandwiches[position];
-        Sandwich sandwich = JsonUtils.parseSandwichJson(json);
-        if (sandwich == null) {
-            // Sandwich data unavailable
+
+        try {
+            Sandwich sandwich = JsonUtils.parseSandwichJson(json);
+            if (sandwich != null) {
+                populateUI(sandwich);
+                Picasso.with(this)
+                        .load(sandwich.getImage())
+                        .error(R.drawable.ic_error_outline)
+                        .into(ingredientsIv);
+                setTitle(sandwich.getMainName());
+            } else {
+                // Sandwich is null
+                closeOnError();
+            }
+        } catch (JSONException e) {
+            // Sandwich json invalid
             closeOnError();
-            return;
         }
-
-        populateUI();
-        Picasso.with(this)
-                .load(sandwich.getImage())
-                .into(ingredientsIv);
-
-        setTitle(sandwich.getMainName());
     }
 
     private void closeOnError() {
@@ -56,7 +66,32 @@ public class DetailActivity extends AppCompatActivity {
         Toast.makeText(this, R.string.detail_error_message, Toast.LENGTH_SHORT).show();
     }
 
-    private void populateUI() {
+    /**
+     * Sets TextViews text to their corresponding Sandwich value
+     *
+     * @param sandwich Sandwich object with detail information
+     */
+    private void populateUI(@NonNull Sandwich sandwich) {
 
+        TextView alsoKnownAsTv = findViewById(R.id.also_known_tv);
+        TextView originTv = findViewById(R.id.origin_tv);
+        TextView ingredientsTv = findViewById(R.id.ingredients_tv);
+        TextView descriptionTv = findViewById(R.id.description_tv);
+
+        if (!sandwich.getAlsoKnownAs().isEmpty()) {
+            alsoKnownAsTv.setText(TextUtils.join(", ", sandwich.getAlsoKnownAs()));
+        }
+
+        if (!sandwich.getPlaceOfOrigin().isEmpty()) {
+            originTv.setText(sandwich.getPlaceOfOrigin());
+        }
+
+        if (!sandwich.getIngredients().isEmpty()) {
+            ingredientsTv.setText(TextUtils.join(", ", sandwich.getIngredients()));
+        }
+
+        if (!sandwich.getDescription().isEmpty()) {
+            descriptionTv.setText(sandwich.getDescription());
+        }
     }
 }
